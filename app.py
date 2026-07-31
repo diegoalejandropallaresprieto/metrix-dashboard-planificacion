@@ -17,6 +17,13 @@ st.markdown(f"""
 <style>
     .stApp {{ background-color: #050505; }}
     
+    /* Ocultar el menú de la esquina superior derecha (hamburguesa) */
+    #MainMenu {visibility: hidden;}
+    /* Ocultar el pie de página de Streamlit */
+    footer {visibility: hidden;}
+    /* Ocultar el encabezado superior (donde sale el logo de GitHub en la nube) */
+    header {visibility: hidden;}
+    
     /* Diseño de las tarjetas de KPIs */
     div[data-testid="stMetric"] {{
         background-color: #0a110a;
