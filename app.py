@@ -12,17 +12,23 @@ COLOR_SECUNDARIO = "#267e26"
 
 st.set_page_config(page_title="Metrix Dashboard", layout="wide")
 
-# CSS para adaptar los colores Y OCULTAR EL MENÚ SIN ROMPER LA BARRA LATERAL
+# CSS para adaptar los colores y dejar la interfaz limpia
 st.markdown(f"""
 <style>
-    /* Oculta solo los botones */
-    [data-testid="stHeaderActionElements"] {{display: none;}}
+    /* 1. Ocultar el menú superior derecho (GitHub, Share, etc.) */
+    [data-testid="stHeaderActionElements"] {{
+        display: none !important;
+    }}
     
-    /* Oculta la marca de agua inferior */
-    footer {{visibility: hidden;}}
+    /* 2. Ocultar la marca de agua de Streamlit al final */
+    footer {{
+        visibility: hidden !important;
+    }}
     
-    /* Vuelve transparente el encabezado para que se fusione con tu fondo */
-    header {{background: transparent;}}
+    /* 3. Hacer el encabezado transparente para que no estorbe */
+    header {{
+        background: transparent !important;
+    }}
 
     /* Fondo de la app */
     .stApp {{ background-color: #050505; }}
