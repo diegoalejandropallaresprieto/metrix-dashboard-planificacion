@@ -3,10 +3,11 @@ import pandas as pd
 import plotly.express as px
 import os
 import re
+import base64
 from datetime import datetime
 
-# 1. CONFIGURACIÓN DE RUTAS
-LOGO_PATH = "07.jpeg"  #---->ruta del logo   
+# 1. CONFIGURACIÓN DE RUTAS Y COLORES
+BANNER_PATH = "banner.jpeg"  # ----> Ruta de tu imagen para el banner translúcido
 
 COLOR_PRIMARIO = "#7bc11d" 
 COLOR_SECUNDARIO = "#267e26" 
@@ -14,31 +15,32 @@ COLOR_TEXTO = "#333333"
 
 st.set_page_config(page_title="Metrix Dashboard", layout="wide")
 
-# CSS responsivo a Modo Light / Modo Dark
+# CSS para adaptar los colores, espacios y traslucidez
 st.markdown(f"""
 <style>
-    /* Aprovechar más el espacio de la pantalla */
+    /* Ajuste de margen superior para dar respiro (ya no está pegado arriba) */
     .block-container {{
-        padding-top: 1.5rem !important;
-        padding-bottom: 1.5rem !important;
+        padding-top: 4rem !important; 
+        padding-bottom: 2rem !important;
     }}
 
-    /* Diseño de las tarjetas de KPIs - Automático para Light/Dark */
+    /* Diseño de las tarjetas de KPIs - Más amplias y separadas */
     div[data-testid="stMetric"] {{
-        background-color: var(--secondary-background-color); /* Cambia solo según el tema */
+        background-color: var(--secondary-background-color); 
         border: 1px solid {COLOR_PRIMARIO};
-        padding: 15px;
+        padding: 20px; /* Más espacio interno */
         border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        margin-bottom: 1rem; /* Separación entre filas */
     }}
     
     /* Textos adaptables */
     [data-testid="stMetricValue"] {{
-        color: {COLOR_PRIMARIO} !important; /* Tu verde resalta bien en blanco o negro */
+        color: {COLOR_PRIMARIO} !important; 
         font-family: 'Courier New', monospace;
     }}
     [data-testid="stMetricLabel"] {{
-        color: var(--text-color) !important; /* Cambia a blanco o negro automáticamente */
+        color: var(--text-color) !important; 
         font-weight: bold;
     }}
     h1, h2, h3 {{
@@ -46,41 +48,59 @@ st.markdown(f"""
     }}
     
     hr {{ border-bottom-color: {COLOR_PRIMARIO} !important; opacity: 0.3; }}
+    
+    /* Clase CSS para el banner translúcido */
+    .banner-translucido {{
+        opacity: 0.6; /* Nivel de traslucidez (0.0 es invisible, 1.0 es sólido) */
+        border-radius: 10px;
+        width: 100%;
+        max-height: 250px;
+        object-fit: cover;
+        margin-bottom: 2rem;
+    }}
 </style>
 """, unsafe_allow_html=True)
 
-# 2. CARGA Y LIMPIEZA DE DATOS
+# 2. BANNER TRANSLÚCIDO
+if os.path.exists(BANNER_PATH):
+    # Convertimos la imagen a código para poder inyectarle el CSS de traslucidez directamente
+    with open(BANNER_PATH, "rb") as image_file:
+        img_base64 = base64.b64encode(image_file.read()).decode()
+    st.markdown(f'<img src="data:image/jpeg;base64,{img_base64}" class="banner-translucido">', unsafe_allow_html=True)
+else:
+    st.info(f"🖼️ Espacio para Banner Translúcido: Guarda tu imagen como '{BANNER_PATH}' en esta misma carpeta.")
+
+st.title("Panel de Desarrollo")
+st.markdown("---")
+
+# 3. CARGA Y LIMPIEZA DE DATOS
 @st.cache_data
 def cargar_datos():
     nombre_archivo = "planeacion.xlsx" #---->ruta del archivo Excel
     try:
         df = pd.read_excel(nombre_archivo)
         
-        # Función para limpiar y calcular horas
         def interpretar_tiempo(val):
             if pd.isna(val) or val == '?':
                 return 0.0
             
             val_str = str(val).lower().strip()
-            # Extraer el número
             match = re.search(r'([0-9]*\.?[0-9]+)', val_str)
             if not match:
                 return 0.0
                 
             num = float(match.group(1))
             
-            # Conversiones
             if 'min' in val_str:
-                return num / 60.0       # Convierte minutos a horas
+                return num / 60.0       
             elif 'dia' in val_str or 'día' in val_str:
-                return num * 8.0        # Multiplica días por 8 horas (Jornada laboraL)
+                return num * 8.0        
             else:
-                return num              # Si ya está en horas, se queda igual
+                return num              
                 
         df["Estimación Horas"] = df["Estimación Horas"].apply(interpretar_tiempo)
         df["Avance %"] = pd.to_numeric(df["Avance %"], errors="coerce").fillna(0) * 100
         
-        # Convertir fechas para el Gantt y KPI de atrasos (Puntos 4 y 5)
         df["Fecha de Inicio"] = pd.to_datetime(df["Fecha de Inicio"], errors="coerce")
         df["Fecha de Entrega"] = pd.to_datetime(df["Fecha de Entrega"], errors="coerce")
         
@@ -88,19 +108,14 @@ def cargar_datos():
         
     except FileNotFoundError:
         st.error(f"Error: No se encontró el archivo '{nombre_archivo}'")
-        st.info("Asegúrate de que el Excel esté guardado en la misma carpeta que 'app.py' y que el nombre sea idéntico.")
         st.stop()
 
 df = cargar_datos()
 
-# 3. BARRA LATERAL (LOGO Y FILTROS)
+# 4. BARRA LATERAL (LOGO EN TEXTO Y FILTROS)
 with st.sidebar:
-    if os.path.exists(LOGO_PATH):
-        # Al estar en modo light, el logo sin fondo (o fondo blanco) se integrará perfecto
-        st.image(LOGO_PATH, use_container_width=True)
-    else:
-        st.info(f"🖼️ Espacio para Logo: Coloca tu imagen en '{LOGO_PATH}'")
-        
+    # Logo tipográfico en lugar de imagen
+    st.markdown(f"<h1 style='text-align: center; color: {COLOR_PRIMARIO}; font-family: Courier New, monospace; letter-spacing: 2px;'>MX METRIX</h1>", unsafe_allow_html=True)
     st.markdown("---")
     
     clientes = st.multiselect("Cliente:", df["Cliente"].dropna().unique())
@@ -112,27 +127,30 @@ if clientes: df_filt = df_filt[df_filt["Cliente"].isin(clientes)]
 if resp:     df_filt = df_filt[df_filt["Responsable"].isin(resp)]
 if estatus:  df_filt = df_filt[df_filt["Estatus"].isin(estatus)]
 
-# 4. TARJETAS DE KPIs (Ahora con 6 columnas)
-c1, c2, c3, c4, c5, c6 = st.columns(6)
+# 5. TARJETAS DE KPIs (Ahora divididas en 2 filas para mayor amplitud)
+# Fila 1
+c1, c2, c3 = st.columns(3)
+# Fila 2
+c4, c5, c6 = st.columns(3)
 
 total_actividades = len(df_filt)
 horas_totales = df_filt['Estimación Horas'].sum()
 promedio_horas_act = (horas_totales / total_actividades) if total_actividades > 0 else 0
 
-# Cálculo de Actividades Atrasadas (Punto 4)
 hoy = pd.Timestamp.now().normalize()
 actividades_atrasadas = len(df_filt[(df_filt["Fecha de Entrega"] < hoy) & (df_filt["Avance %"] < 100)])
 
 c1.metric("Total Actividades", total_actividades)
 c2.metric("Horas Estimadas", f"{horas_totales:,.1f} h")
 c3.metric("Prom Hrs/Act", f"{promedio_horas_act:.1f} h")
+
 c4.metric("Avance Global", f"{df_filt['Avance %'].mean():.1f}%" if not df_filt.empty else "0%")
 c5.metric("Completadas", len(df_filt[df_filt["Avance %"] == 100]))
-c6.metric("🚨 Atrasadas", actividades_atrasadas) # Nuevo indicador de tareas vencidas
+c6.metric("🚨 Atrasadas", actividades_atrasadas) 
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# 5. GRÁFICOS (Modo Claro)
+# 6. GRÁFICOS 
 g1, g2 = st.columns(2)
 
 graf_config = dict(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color=COLOR_TEXTO))
@@ -147,15 +165,13 @@ with g2:
     horas_resp = df_filt.groupby("Responsable")["Estimación Horas"].sum().reset_index()
     fig2 = px.bar(horas_resp, x="Responsable", y="Estimación Horas", title="Horas por Responsable", color_discrete_sequence=[COLOR_PRIMARIO])
     fig2.update_layout(**graf_config)
-    # Cuadrícula en un gris muy claro para mantener el minimalismo
     fig2.update_yaxes(showgrid=True, gridcolor="#e0e0e0") 
     st.plotly_chart(fig2, use_container_width=True)
 
-# 6. DIAGRAMA DE GANTT (Vista Temporal - Punto 5)
+# 7. DIAGRAMA DE GANTT (Vista Temporal)
 st.markdown("---")
 st.subheader("Cronograma de Actividades (Gantt)")
 
-# Filtrar solo registros que tengan fechas válidas de inicio y entrega para el Gantt
 df_gantt = df_filt.dropna(subset=["Fecha de Inicio", "Fecha de Entrega"])
 
 if not df_gantt.empty:
@@ -163,12 +179,11 @@ if not df_gantt.empty:
         df_gantt, 
         x_start="Fecha de Inicio", 
         x_end="Fecha de Entrega", 
-        y="Responsable", # Puedes cambiar esto por "Módulo" o "Cliente" si prefieres agrupar distinto
+        y="Responsable", 
         color="Estatus",
         hover_name="Módulo",
         color_discrete_sequence=colores_graficas
     )
-    # Invertir el eje Y para que los primeros elementos salgan arriba
     fig_gantt.update_yaxes(autorange="reversed")
     fig_gantt.update_layout(
         **graf_config,
@@ -181,7 +196,7 @@ if not df_gantt.empty:
 else:
     st.info("💡 No hay suficientes datos de fechas (Inicio / Entrega) en el archivo para generar el diagrama de Gantt.")
 
-# 7. TABLA DE DATOS
+# 8. TABLA DE DATOS
 st.markdown("---")
 st.subheader("Detalle de Actividades")
 st.dataframe(
