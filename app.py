@@ -7,7 +7,7 @@ import base64
 from datetime import datetime
 
 # 1. CONFIGURACIÓN DE RUTAS Y COLORES
-BANNER_PATH = "banner.jpeg"  # ----> Ruta de tu imagen para el banner translúcido
+BANNER_PATH = "07.jpeg"  # ----> Ruta de tu imagen para el banner translúcido
 
 COLOR_PRIMARIO = "#7bc11d" 
 COLOR_SECUNDARIO = "#267e26" 
