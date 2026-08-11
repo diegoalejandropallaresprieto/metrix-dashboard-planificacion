@@ -157,7 +157,7 @@ with g1:
     st.plotly_chart(fig1, use_container_width=True)
 
 with g2:
-    st.markdown("####Carga Horaria por Desarrollador")
+    st.markdown("#### Carga Horaria por Desarrollador")
     horas_resp = df_filt.groupby("Responsable")["Estimación Horas"].sum().reset_index()
     fig2 = px.bar(horas_resp, x="Responsable", y="Estimación Horas", color_discrete_sequence=[COLOR_PRIMARIO])
     fig2.update_layout(**graf_config, margin=dict(t=0, b=0, l=0, r=0))
