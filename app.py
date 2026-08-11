@@ -8,7 +8,7 @@ import re
 # 1. CONFIGURACIÓN DE RUTAS Y COLORES
 # ==========================================
 # Coloca aquí tu archivo PNG original con fondo transparente
-LOGO_PATH = "07.png"  
+LOGO_PATH = "08.png"  
 
 COLOR_PRIMARIO = "#7bc11d" 
 COLOR_SECUNDARIO = "#267e26" 
