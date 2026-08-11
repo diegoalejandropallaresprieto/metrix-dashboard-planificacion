@@ -3,45 +3,44 @@ import pandas as pd
 import plotly.express as px
 import os
 import re
-from datetime import datetime
 
 # ==========================================
 # 1. CONFIGURACIÓN DE RUTAS Y COLORES
 # ==========================================
-LOGO_PATH = "07.jpeg"  # ----> Ruta de tu logo
+# Coloca aquí tu archivo PNG original con fondo transparente
+LOGO_PATH = "07.png"  
 
 COLOR_PRIMARIO = "#7bc11d" 
 COLOR_SECUNDARIO = "#267e26" 
 
 st.set_page_config(page_title="Metrix Dashboard", layout="wide", initial_sidebar_state="collapsed")
 
-# CSS Avanzado para diseño limpio y sin botones molestos
+# CSS Avanzado para diseño limpio y compacto
 st.markdown(f"""
 <style>
-    /* 1. Ocultar botones de Streamlit, footer y el botón de la barra lateral (>) */
+    /* Ocultar botones de Streamlit para no verse expuesto */
     [data-testid="stHeaderActionElements"] {{ display: none !important; }}
     [data-testid="collapsedControl"] {{ display: none !important; }}
     footer {{ visibility: hidden !important; }}
     header {{ background: transparent !important; }}
 
-    /* 2. Ajuste de márgenes para maximizar espacio */
+    /* Ajuste extremo de márgenes para maximizar espacio (elimina la caja azul) */
     .block-container {{
         padding-top: 2rem !important; 
         padding-bottom: 2rem !important;
         max-width: 95%;
     }}
 
-    /* 3. Diseño de las tarjetas de KPIs - Automático para Light/Dark */
+    /* Diseño de las tarjetas de KPIs */
     div[data-testid="stMetric"] {{
         background-color: var(--secondary-background-color); 
-        border-left: 4px solid {COLOR_PRIMARIO}; /* Borde lateral elegante */
+        border-left: 4px solid {COLOR_PRIMARIO}; 
         padding: 15px 20px; 
         border-radius: 5px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         margin-bottom: 1rem;
     }}
     
-    /* Textos de las métricas */
     [data-testid="stMetricValue"] {{
         color: {COLOR_PRIMARIO} !important; 
         font-family: 'Courier New', monospace;
@@ -51,8 +50,6 @@ st.markdown(f"""
         font-size: 1.1rem !important;
         font-weight: 600;
     }}
-    
-    hr {{ border-bottom-color: {COLOR_PRIMARIO} !important; opacity: 0.3; }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -61,7 +58,7 @@ st.markdown(f"""
 # ==========================================
 @st.cache_data
 def cargar_datos():
-    nombre_archivo = "planeacion.xlsx" #---->ruta del archivo Excel
+    nombre_archivo = "planeacion.xlsx" 
     try:
         df = pd.read_excel(nombre_archivo)
         
@@ -89,9 +86,10 @@ def cargar_datos():
 df = cargar_datos()
 
 # ==========================================
-# 3. ENCABEZADO Y LOGO INTEGRAD0
+# 3. ENCABEZADO Y LOGO (Diseño Compacto)
 # ==========================================
-col_logo, col_titulo = st.columns([1, 6])
+# Se ajustan las proporciones para que el logo no ocupe demasiado espacio a lo ancho
+col_logo, col_titulo = st.columns([1, 8])
 
 with col_logo:
     if os.path.exists(LOGO_PATH):
@@ -100,15 +98,14 @@ with col_logo:
         st.info(f"🖼️ Sube: {LOGO_PATH}")
 
 with col_titulo:
-    st.markdown(f"<h1 style='color: {COLOR_SECUNDARIO}; margin-bottom: 0; padding-bottom: 0;'>🚀 Panel de Desarrollo Metrix</h1>", unsafe_allow_html=True)
-    st.markdown(f"<p style='color: gray; font-size: 1.1em; margin-top: 0;'>Sistema centralizado de control de tiempos, recursos y estatus de proyectos.</p>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='color: {COLOR_SECUNDARIO}; margin-top: -15px; margin-bottom: 0; padding-bottom: 0;'>🚀 Panel de Desarrollo Metrix</h1>", unsafe_allow_html=True)
+    st.markdown(f"<p style='color: gray; font-size: 1.1em; margin-top: 0; margin-bottom: 15px;'>Sistema centralizado de control de tiempos, recursos y estatus de proyectos.</p>", unsafe_allow_html=True)
 
-st.markdown("---")
+# 🛑 Se eliminó la línea divisoria (st.markdown("---")) para aprovechar el espacio azul.
 
 # ==========================================
-# 4. PANEL DE CONTROL (FILTROS)
+# 4. PANEL DE CONTROL (FILTROS PEGADOS AL ENCABEZADO)
 # ==========================================
-st.markdown("### 🎛️ Filtros Rápidos")
 f1, f2, f3 = st.columns(3)
 
 with f1:
@@ -126,7 +123,7 @@ if estatus:  df_filt = df_filt[df_filt["Estatus"].isin(estatus)]
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ==========================================
-# 5. TARJETAS DE KPIs (Con Emojis)
+# 5. TARJETAS DE KPIs
 # ==========================================
 c1, c2, c3 = st.columns(3)
 c4, c5, c6 = st.columns(3)
@@ -195,7 +192,7 @@ else:
 # 8. TABLA DE DATOS
 # ==========================================
 st.markdown("---")
-st.markdown("### 🗂️ Matriz de Actividades")
+st.markdown("### Matriz de Actividades")
 st.dataframe(
     df_filt[["Cliente", "Módulo", "Responsable", "Estatus", "Estimación Horas", "Avance %", "Fecha de Entrega"]],
     use_container_width=True,
