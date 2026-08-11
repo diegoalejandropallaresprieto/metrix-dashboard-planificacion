@@ -167,7 +167,7 @@ with g2:
 # 7. DIAGRAMA DE GANTT
 # ==========================================
 st.markdown("---")
-st.markdown("###Cronograma de Ejecución (Gantt)")
+st.markdown("### Cronograma de Ejecución (Gantt)")
 
 df_gantt = df_filt.dropna(subset=["Fecha de Inicio", "Fecha de Entrega"])
 
