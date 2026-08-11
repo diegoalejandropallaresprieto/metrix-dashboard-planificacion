@@ -95,13 +95,12 @@ with col_logo:
     if os.path.exists(LOGO_PATH):
         st.image(LOGO_PATH, use_container_width=True)
     else:
-        st.info(f"🖼️ Sube: {LOGO_PATH}")
+        st.info(f"Sube: {LOGO_PATH}")
 
 with col_titulo:
-    st.markdown(f"<h1 style='color: {COLOR_SECUNDARIO}; margin-top: -15px; margin-bottom: 0; padding-bottom: 0;'>🚀 Panel de Desarrollo Metrix</h1>", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='color: {COLOR_SECUNDARIO}; margin-top: -15px; margin-bottom: 0; padding-bottom: 0;'>Panel de Desarrollo Metrix</h1>", unsafe_allow_html=True)
     st.markdown(f"<p style='color: gray; font-size: 1.1em; margin-top: 0; margin-bottom: 15px;'>Sistema centralizado de control de tiempos, recursos y estatus de proyectos.</p>", unsafe_allow_html=True)
 
-# 🛑 Se eliminó la línea divisoria (st.markdown("---")) para aprovechar el espacio azul.
 
 # ==========================================
 # 4. PANEL DE CONTROL (FILTROS PEGADOS AL ENCABEZADO)
@@ -134,12 +133,12 @@ promedio_horas_act = (horas_totales / total_actividades) if total_actividades > 
 hoy = pd.Timestamp.now().normalize()
 actividades_atrasadas = len(df_filt[(df_filt["Fecha de Entrega"] < hoy) & (df_filt["Avance %"] < 100)])
 
-c1.metric("📋 Total Tareas", total_actividades)
-c2.metric("⏱️ Horas Estimadas", f"{horas_totales:,.1f} h")
-c3.metric("⚖️ Promedio Hrs/Tarea", f"{promedio_horas_act:.1f} h")
+c1.metric("Total Tareas", total_actividades)
+c2.metric("Horas Estimadas", f"{horas_totales:,.1f} h")
+c3.metric("Promedio Hrs/Tarea", f"{promedio_horas_act:.1f} h")
 
-c4.metric("📈 Avance Global", f"{df_filt['Avance %'].mean():.1f}%" if not df_filt.empty else "0%")
-c5.metric("✅ Tareas Completadas", len(df_filt[df_filt["Avance %"] == 100]))
+c4.metric("Avance Global", f"{df_filt['Avance %'].mean():.1f}%" if not df_filt.empty else "0%")
+c5.metric("Tareas Completadas", len(df_filt[df_filt["Avance %"] == 100]))
 c6.metric("🚨 Tareas Atrasadas", actividades_atrasadas) 
 
 st.markdown("---")
@@ -152,13 +151,13 @@ graf_config = dict(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
 colores_graficas = [COLOR_PRIMARIO, COLOR_SECUNDARIO, "#888888", "#cccccc", "#222222"]
 
 with g1:
-    st.markdown("#### 📊 Distribución del Proyecto")
+    st.markdown("#### Distribución del Proyecto")
     fig1 = px.pie(df_filt, names="Estatus", hole=0.4, color_discrete_sequence=colores_graficas)
     fig1.update_layout(**graf_config, margin=dict(t=0, b=0, l=0, r=0))
     st.plotly_chart(fig1, use_container_width=True)
 
 with g2:
-    st.markdown("#### 🧑‍💻 Carga Horaria por Desarrollador")
+    st.markdown("####Carga Horaria por Desarrollador")
     horas_resp = df_filt.groupby("Responsable")["Estimación Horas"].sum().reset_index()
     fig2 = px.bar(horas_resp, x="Responsable", y="Estimación Horas", color_discrete_sequence=[COLOR_PRIMARIO])
     fig2.update_layout(**graf_config, margin=dict(t=0, b=0, l=0, r=0))
@@ -168,7 +167,7 @@ with g2:
 # 7. DIAGRAMA DE GANTT
 # ==========================================
 st.markdown("---")
-st.markdown("### 📅 Cronograma de Ejecución (Gantt)")
+st.markdown("###Cronograma de Ejecución (Gantt)")
 
 df_gantt = df_filt.dropna(subset=["Fecha de Inicio", "Fecha de Entrega"])
 
@@ -186,7 +185,7 @@ if not df_gantt.empty:
     fig_gantt.update_layout(**graf_config, xaxis_title="", yaxis_title="")
     st.plotly_chart(fig_gantt, use_container_width=True)
 else:
-    st.info("💡 Faltan fechas de Inicio/Entrega para generar el diagrama de Gantt.")
+    st.info("Faltan fechas de Inicio/Entrega para generar el diagrama de Gantt.")
 
 # ==========================================
 # 8. TABLA DE DATOS
