@@ -164,28 +164,37 @@ with g2:
     st.plotly_chart(fig2, use_container_width=True)
 
 # ==========================================
-# 7. DIAGRAMA DE GANTT
+# 7. DIAGRAMA DE GANTT (Corregido y Optimizado)
 # ==========================================
 st.markdown("---")
 st.markdown("### Cronograma de Ejecución (Gantt)")
 
-df_gantt = df_filt.dropna(subset=["Fecha de Inicio", "Fecha de Entrega"])
+# 1. Quitar los que no tienen fechas
+df_gantt = df_filt.dropna(subset=["Fecha de Inicio", "Fecha de Entrega"]).copy()
+
+# 2. FILTRO DE SEGURIDAD: Eliminar "errores de dedo" en fechas (ej. años > 2027)
+limite_fecha = pd.to_datetime('2027-12-31')
+df_gantt = df_gantt[df_gantt["Fecha de Entrega"] <= limite_fecha]
 
 if not df_gantt.empty:
     fig_gantt = px.timeline(
         df_gantt, 
         x_start="Fecha de Inicio", 
         x_end="Fecha de Entrega", 
-        y="Responsable", 
+        y="Módulo",              
         color="Estatus",
-        hover_name="Módulo",
+        hover_name="Responsable", 
         color_discrete_sequence=colores_graficas
     )
     fig_gantt.update_yaxes(autorange="reversed")
-    fig_gantt.update_layout(**graf_config, xaxis_title="", yaxis_title="")
+    fig_gantt.update_layout(
+        **graf_config, 
+        xaxis_title="Línea de Tiempo", 
+        yaxis_title="Módulos del Sistema"
+    )
     st.plotly_chart(fig_gantt, use_container_width=True)
 else:
-    st.info("Faltan fechas de Inicio/Entrega para generar el diagrama de Gantt.")
+    st.info("Faltan fechas de Inicio/Entrega válidas para generar el diagrama de Gantt.")
 
 # ==========================================
 # 8. TABLA DE DATOS
